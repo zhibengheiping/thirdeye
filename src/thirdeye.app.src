@@ -1,0 +1,9 @@
+{application, thirdeye,
+ [
+  {description, "erlang as proof verifier"},
+  {vsn, "git"},
+  {registered, []},
+  {applications, [kernel, stdlib]},
+  {env, []}
+ ]
+}.
