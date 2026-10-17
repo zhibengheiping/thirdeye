@@ -3,113 +3,97 @@
 -export(
    ['0+0=0'/0, 'prove_0+0=0'/0]).
 
-mp(['⊦', P], ['⊦', [P, '→', Q]]) ->
-    ['⊦', Q].
-
-unop([unop, O], [term, X]) ->
-    [term, [O, X]].
-
-binop([binop, O], [term, X], [term, Y]) ->
-    [term, [X, O, Y]].
+-import(te, [mp/2]).
 
 binop_imply() ->
-    [binop, '→'].
+    ['⊦', [binop, '→']].
 
 binop_iff() ->
-    [binop, '⇔'].
+    ['⊦', [binop, '⇔']].
 
-iff([term, P], [term, Q]) ->
+iff(P, Q) ->
     ['⊦', [[P, '→', Q], '→', [[Q, '→', P], '→', [P, '⇔', Q]]]].
 
-iff_left([term, P], [term, Q]) ->
+iff_left(P, Q) ->
     ['⊦', [[P, '⇔', Q], '→', [P, '→', Q]]].
 
-iff_right([term, P], [term, Q]) ->
+iff_right(P, Q) ->
     ['⊦', [[P, '⇔', Q], '→', [Q, '→', P]]].
 
 binop_eq() ->
-    [binop, '='].
+    ['⊦',[binop, '=']].
 
-eq_comm([term, P], [term, Q]) ->
+eq_comm(P, Q) ->
     ['⊦', [[P, '=', Q], '→', [Q, '=', P]]].
 
-eq_trans([term, P], [term, Q], [term, R]) ->
+eq_trans(P, Q, R) ->
     ['⊦', [[P, '=', Q], '→', [[Q, '=', R], '→', [P, '=', R]]]].
 
 unop_id() ->
-    [unop, id].
+    ['⊦',[unop, id]].
 
-id([term, X]) ->
+id(X) ->
     ['⊦', [[id, X], '=', X]].
 
-unop_forall() ->
-    [unop, '∀'].
+forall_inst_unop(P, X) ->
+    ['⊦', [[unop, P], '→', [['∀', P], '→', [P, X]]]].
 
-binop_forall() ->
-    [binop, '∀'].
-
-forall_inst_unop([unop, P], [term, X]) ->
-    ['⊦', [['∀', P], '→', [P, X]]].
-
-forall_inst_binop([binop, P], [term, X], [term, Y]) ->
-    ['⊦', [['∀', P], '→', [X, P, Y]]].
+forall_inst_binop(P, X, Y) ->
+    ['⊦', [[binop, P], '→', [['∀', P], '→', [X, P, Y]]]].
 
 binop_compose() ->
-    [binop, '∘'].
+    ['⊦',[binop, '∘']].
 
 binop_left() ->
-    [binop, '⊣'].
+    ['⊦',[binop, '⊣']].
 
 binop_right() ->
-    [binop, '⊢'].
+    ['⊦',[binop, '⊢']].
 
-left([term, X], [term, Y]) ->
+left(X, Y) ->
     ['⊦', [[X, '⊣', Y], '=', X]].
 
-right([term, X], [term, Y]) ->
+right(X, Y) ->
     ['⊦', [[X, '⊢', Y], '=', Y]].
 
-unop_bind_left([binop, O], [term, X]) ->
-    [unop, ['_', O, X]].
+unop_bind_left(O, X) ->
+    ['⊦', [[binop, O], '→', [unop, ['_', O, X]]]].
 
-unop_bind_right([binop, O], [term, X]) ->
-    [unop, [X, O, '_']].
+unop_bind_right(O, X) ->
+    ['⊦', [[binop, O], '→', [unop, [X, O, '_']]]].
 
-bind_left([binop, O], [term, X], [term, Y]) ->
-    ['⊦', [[['_', O, Y], X], '=', [X, O, Y]]].
+bind_left(O, X, Y) ->
+    ['⊦', [[binop, O], '→', [[['_', O, Y], X], '=', [X, O, Y]]]].
 
-bind_right([binop, O], [term, X], [term, Y]) ->
-    ['⊦', [[[X, O, '_'], Y], '=', [X, O, Y]]].
+bind_right(O, X, Y) ->
+    ['⊦', [[binop, O], '→', [[[X, O, '_'], Y], '=', [X, O, Y]]]].
 
-unop_fork([unop, P], [binop, Q], [unop, R]) ->
-    [unop, [fork, P, Q, R]].
+unop_fork(P, Q, R) ->
+    ['⊦', [[unop, P], '→', [[binop, Q], '→', [[unop, R], '→', [unop, [fork, P, Q, R]]]]]].
 
-binop_fork([binop, P], [binop, Q], [binop, R]) ->
-    [binop, [fork, P, Q, R]].
+binop_fork(P, Q, R) ->
+    ['⊦', [[binop, P], '→', [[binop, Q], '→', [[binop, R], '→', [binop, [fork, P, Q, R]]]]]].
 
-fork_unop([unop, P], [binop, Q], [unop, R], [term, X]) ->
-    ['⊦', [[[fork, P, Q, R], X], '⇔', [[P, X], Q, [R, X]]]].
+fork_unop(P, Q, R, X) ->
+    ['⊦', [[unop, P], '→', [[binop, Q], '→', [[unop, R], '→', [[[fork, P, Q, R], X], '⇔', [[P, X], Q, [R, X]]]]]]].
 
-fork_binop([binop, P], [binop, Q], [binop, R], [term, X], [term, Y]) ->
-    ['⊦', [[X, [fork, P, Q, R], Y], '⇔', [[X, P, Y], Q, [X, R, Y]]]].
+fork_binop(P, Q, R, X, Y) ->
+    ['⊦', [[binop, P], '→', [[binop, Q], '→', [[binop, R], '→', [[X, [fork, P, Q, R], Y], '⇔', [[X, P, Y], Q, [X, R, Y]]]]]]].
 
 unop_natp() ->
-    [unop, natp].
-
-term_0() ->
-    [term, '0'].
+    ['⊦',[unop, natp]].
 
 natp_0() ->
     ['⊦', [natp, '0']].
 
 unop_succ() ->
-    [unop, succ].
+    ['⊦',[unop, succ]].
 
-natp_succ([term, X]) ->
+natp_succ(X) ->
     ['⊦', [[natp, X], '→', [natp, [succ, X]]]].
 
 binop_plus() ->
-    [binop, '+'].
+    ['⊦',[binop, '+']].
 
 add_0() ->
     ['⊦', ['∀', [fork, natp, '→', [fork, ['_', '+', '0'], '=', id]]]].
@@ -118,122 +102,82 @@ add_succ() ->
     ['⊦', ['∀', [fork, [natp, '∘', '⊣'], '→', [fork, [natp, '∘', '⊢'], '→', [fork, [fork, '⊣', '+', [succ, '∘', '⊢']], '=', [succ, '∘', '+']]]]]].
 
 nat_ind([unop, P]) ->
-    ['⊦', [[P, '0'],
-           '→',
-           [['∀', [fork, natp, '→', [fork, P, '→', [P, '∘', succ]]]],
+    ['⊦', [[unop, P], '→',
+           [[P, '0'],
             '→',
-            ['∀', [fork, natp, '→', P]]]]].
+            [['∀', [fork, natp, '→', [fork, P, '→', [P, '∘', succ]]]],
+             '→',
+             ['∀', [fork, natp, '→', P]]]]]].
 
 
 '0+0=0'() ->
     ['⊦', [['0', '+', '0'], '=', '0']].
 
 'prove_0+0=0'() ->
-    P1 = add_0(),
-    P1 = ['⊦', ['∀', [fork, natp, '→', [fork, ['_', '+', '0'], '=', id]]]],
+    T0 = '0',
+    T1 = '+',
+    T2 = [T0, T1, T0],
+    T3 = id,
+    T4 = [T3, T0],
+    T5 = '_',
+    T6 = [T5, T1, T0],
+    T7 = [T6, T0],
+    T8 = fork,
+    T9 = '=',
+    T10 = [T8, T6, T9, T3],
+    T11 = [T10, T0],
+    T12 = [T7, T9, T4],
+    T13 = natp,
+    T14 = '→',
+    T15 = [T8, T13, T14, T10],
+    T16 = [T15, T0],
+    T17 = [T13, T0],
+    T18 = [T17, T14, T11],
 
-    P2 = binop_plus(),
-    P2 = [binop, '+'],
-
-    P3 = term_0(),
-    P3 = [term, '0'],
-
-    P4 = unop_bind_left(P2, P3),
-    P4 = [unop, ['_', '+', '0']],
-
-    P5 = binop_eq(),
-    P5 = [binop, '='],
-
-    P6 = unop_id(),
-    P6 = [unop, id],
-
-    P7 = unop_fork(P4, P5, P6),
-    P7 = [unop, [fork, ['_', '+', '0'], '=', id]],
-
-    P8 = unop_natp(),
-    P8 = [unop, natp],
-
-    P9 = binop_imply(),
-    P9 = [binop, '→'],
-
-    P10 = unop_fork(P8, P9, P7),
-    P10 = [unop, [fork, natp, '→', [fork, ['_', '+', '0'], '=', id]]],
-
-    P11 = forall_inst_unop(P10, P3),
-    P11 = ['⊦', [['∀', [fork, natp, '→', [fork, ['_', '+', '0'], '=', id]]],
-                 '→',
-                 [[fork, natp, '→', [fork, ['_', '+', '0'], '=', id]], '0']]],
-
-    P12 = mp(P1, P11),
-    P12 = ['⊦', [[fork, natp, '→', [fork, ['_', '+', '0'], '=', id]], '0']],
-
-
-    P13 = fork_unop(P8, P9, P7, P3),
-    P13 = ['⊦', [[[fork, natp, '→', [fork, ['_', '+', '0'], '=', id]], '0'],
-                 '⇔',
-                 [[natp, '0'], '→', [[fork, ['_', '+', '0'], '=', id], '0']]]],
-
-    P14 = unop(P10, P3),
-    P14 = [term, [[fork, natp, '→', [fork, ['_', '+', '0'], '=', id]], '0']],
-
-    P15 = unop(P8, P3),
-    P15 = [term, [natp, '0']],
-
-    P16 = unop(P7, P3),
-    P16 = [term, [[fork, ['_', '+', '0'], '=', id], '0']],
-
-    P17 = binop(P9, P15, P16),
-    P17 = [term, [[natp, '0'], '→', [[fork, ['_', '+', '0'], '=', id], '0']]],
-
-    P18 = iff_left(P14, P17),
-    P19 = mp(P13, P18),
-    P20 = mp(P12, P19),
-    P20 = ['⊦', [[natp, '0'], '→', [[fork, ['_', '+', '0'], '=', id], '0']]],
-
-    P21 = natp_0(),
-    P21 = ['⊦', [natp, '0']],
-    P22 = mp(P21, P20),
-    P22 = ['⊦', [[fork, ['_', '+', '0'], '=', id], '0']],
-
-    P23 = fork_unop(P4, P5, P6, P3),
-    P23 =  ['⊦', [[[fork, ['_', '+', '0'], '=', id], '0'],
-                  '⇔',
-                  [[['_', '+', '0'], '0'], '=', [id, '0']]]],
-
-    P24 = unop(P4, P3),
-    P24 = [term, [['_', '+', '0'], '0']],
-
-    P25 = unop(P6, P3),
-    P25 = [term, [id, '0']],
-
-    P26 = binop(P5, P24, P25),
-    P26 = [term, [[['_', '+', '0'], '0'], '=', [id, '0']]],
-
-    P27 = iff_left(P16, P26),
+    P0 = eq_trans(T2, T4, T0),
+    P1 = eq_trans(T2, T7, T4),
+    P2 = eq_comm(T7, T2),
+    P3 = bind_left(T1, T0, T0),
+    P4 = binop_plus(),
+    P5 = mp(P3, P4),
+    P6 = mp(P2, P5),
+    P7 = mp(P1, P6),
+    P8 = iff_left(T11, T12),
+    P9 = fork_unop(T6, T9, T3, T0),
+    P10 = unop_bind_left(T1, T0),
+    P11 = mp(P10, P4),
+    P12 = mp(P9, P11),
+    P13 = binop_eq(),
+    P14 = mp(P12, P13),
+    P15 = unop_id(),
+    P16 = mp(P14, P15),
+    P17 = mp(P8, P16),
+    P18 = iff_left(T16, T18),
+    P19 = fork_unop(T13, T14, T10, T0),
+    P20 = unop_natp(),
+    P21 = mp(P19, P20),
+    P22 = binop_imply(),
+    P23 = mp(P21, P22),
+    P24 = unop_fork(T6, T9, T3),
+    P25 = mp(P24, P11),
+    P26 = mp(P25, P13),
+    P27 = mp(P26, P15),
     P28 = mp(P23, P27),
-    P29 = mp(P22, P28),
-    P29 = ['⊦', [[['_', '+', '0'], '0'], '=', [id, '0']]],
-
-    P30 = bind_left(P2, P3, P3),
-    P30 = ['⊦', [[['_', '+', '0'], '0'], '=', ['0', '+', '0']]],
-
-    P31 = id(P3),
-    P31 = ['⊦', [[id, '0'], '=', '0']],
-
-    P32 = binop(P2, P3, P3),
-    P32 = [term, ['0', '+', '0']],
-
-    P33 = eq_comm(P24, P32),
-    P34 = mp(P30, P33),
-    P34 = ['⊦', [['0', '+', '0'], '=', [['_', '+', '0'], '0']]],
-
-    P35 = eq_trans(P32, P24, P25),
-    P36 = mp(P34, P35),
-    P37 = mp(P29, P36),
-    P37 = ['⊦', [['0', '+', '0'], '=', [id, '0']]],
-
-    P38 = eq_trans(P32, P25, P3),
-    P39 = mp(P37, P38),
-    P40 = mp(P31, P39),
-    P40 = ['⊦', [['0', '+', '0'], '=', '0']],
-    P40.
+    P29 = mp(P18, P28),
+    P30 = forall_inst_unop(T15, T0),
+    P31 = unop_fork(T13, T14, T10),
+    P32 = mp(P31, P20),
+    P33 = mp(P32, P22),
+    P34 = mp(P33, P27),
+    P35 = mp(P30, P34),
+    P36 = add_0(),
+    P37 = mp(P35, P36),
+    P38 = mp(P29, P37),
+    P39 = natp_0(),
+    P40 = mp(P38, P39),
+    P41 = mp(P17, P40),
+    P42 = mp(P7, P41),
+    P43 = mp(P0, P42),
+    P44 = id(T0),
+    P45 = mp(P43, P44),
+    P45.
