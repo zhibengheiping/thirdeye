@@ -8,5 +8,5 @@ verify(Theorem, Proof) when is_function(Theorem) ->
     Args = [make_ref() || _ <- lists:seq(1, N)],
     true = apply(Theorem, Args) =:= apply(Proof, Args).
 
-mp(['⊦', [P, '→', Q]], ['⊦', P]) ->
+mp(['⊦', [Q, P, '→']], ['⊦', P]) ->
     ['⊦', Q].
